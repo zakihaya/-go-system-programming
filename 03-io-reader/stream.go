@@ -12,6 +12,6 @@ func main() {
 	footer := bytes.NewBufferString("----- FOOTER -----\n")
 
 	reader := io.MultiReader(header, content, footer)
-	// すべてのreaderをつあんげた出力が表示
+	// すべてのreaderをつなげた出力が表示
 	io.Copy(os.Stdout, reader)
 }
