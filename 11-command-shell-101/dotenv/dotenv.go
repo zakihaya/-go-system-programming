@@ -6,6 +6,9 @@ import (
 	"os"
 	"os/exec"
 
+	// 外部モジュールを取り込むと動くようになる
+	// go mod init namespace/package
+	// go mod tidy
 	"github.com/joho/godotenv"
 )
 
