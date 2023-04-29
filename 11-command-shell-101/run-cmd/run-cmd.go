@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"os"
+	"os/exec"
+	"path/filepath"
 	"strings"
 
 	"github.com/google/shlex"
@@ -26,24 +29,34 @@ func parseCmd(cmdStr string) (cmd string, args []string, err error) {
 	}
 }
 
+func expandPath(path, workDir string) string {
+	if filepath.IsAbs(path) {
+		return path
+	}
+	return filepath.Join(workDir, path)
+}
+
 func main() {
 	line := liner.NewLiner()
 	line.SetCtrlCAborts(true)
 	for {
-		if cmdStr, err := line.Prompt(" "); err == nil {
-			fmt.Println("cmd:", cmdStr)
-			if cmdStr == "" {
-				fmt.Println("continue")
+		if ipt, err := line.Prompt("$ "); err == nil {
+			if ipt == "" {
 				continue
 			}
 			// ここでコマンドを処理する
-			fmt.Println("parse", cmdStr)
-			cmd, args, err := parseCmd(cmdStr)
-			fmt.Println("---")
-			fmt.Println(cmd)
-			fmt.Println(args)
-			fmt.Println(err)
-			fmt.Println("---")
+			cmdStr, args, err := parseCmd(ipt)
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+			cmd := exec.Command(cmdStr, args...)
+			o, err := cmd.CombinedOutput()
+			fmt.Println(string(o))
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
 		} else if errors.Is(err, io.EOF) {
 			break
 		} else if err == liner.ErrPromptAborted {
@@ -53,6 +66,5 @@ func main() {
 			log.Print("Error reading line:", err)
 		}
 	}
-
 	fmt.Println("== end")
 }
