@@ -1,0 +1,6 @@
+a
+b
+func c
+d
+func e
+f
